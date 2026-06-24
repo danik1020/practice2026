@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using System.Collections.Generic;
-
+namespace task01{
 public static class StringExtensions
 {
     public static bool IsPalindrome(this string input)
@@ -25,4 +25,5 @@ public static class StringExtensions
             
 
 
+}
 }

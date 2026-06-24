@@ -1,5 +1,5 @@
 ﻿using xUnit;
-
+using task01;
 public class StringExtensionsTests
 {
     [Fact]
