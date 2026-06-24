@@ -30,16 +30,21 @@ public class StringExtensionsTests
         Assert.True(input.IsPalindrome());
     }
 
+    [Fact]
     public void IsPalindrome_WithPunctuation_OnlySpace__ReturnsFalse()
     {
         string input = "  ";
         Assert.False(input.IsPalindrome());
     }
 
+    [Fact]
     public void IsPalindrome_WithPunctuation_EasyWordManyspace()
     {
         string input = "За   к а   з";
         Assert.True(input.IsPalindrome());
     }
+    [Fact]
+    public void IsPalindrome_TwoChars_ReturnsTrue()
+        => Assert.True("аа".IsPalindrome());
 
 }
