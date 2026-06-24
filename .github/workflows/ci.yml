@@ -1,0 +1,31 @@
+name: Main CI-pipeline
+
+on:
+  push:
+    branches:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+        
+    - name: Restore
+      run: dotnet restore practice2026.sln
+
+    - run: dotnet build --configuration Release --no-restore
+    - run: dotnet test --configuration Release --no-build
+    - if: github.event_name == 'push'
+      run: dotnet publish --configuration Release --no-build -o ./publish
+    - if: github.event_name == 'push'
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-artifact
+        path: ./publish
+        
