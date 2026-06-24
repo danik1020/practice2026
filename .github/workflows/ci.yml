@@ -1,4 +1,4 @@
-name: .NET
+name: Main CI-pipeline
 
 on:
   push:
@@ -15,7 +15,10 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
-    - run: dotnet restore
+        
+    - name: Restore
+      run: dotnet restore practice2026.sln
+
     - run: dotnet build --configuration Release --no-restore
     - run: dotnet test --configuration Release --no-build
     - if: github.event_name == 'push'
@@ -25,3 +28,4 @@ jobs:
       with:
         name: app-artifact
         path: ./publish
+        
