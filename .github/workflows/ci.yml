@@ -17,7 +17,7 @@ jobs:
         dotnet-version: '8.0.x'
         
     - name: Restore
-      run: dotnet restore practice2026.sln
+      run: dotnet restore practice2026.sln --no-cache
 
     - run: dotnet build --configuration Release --no-restore
     - run: dotnet test --configuration Release --no-build
@@ -28,4 +28,3 @@ jobs:
       with:
         name: app-artifact
         path: ./publish
-        
