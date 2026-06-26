@@ -3,12 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
+<<<<<<< Updated upstream
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "task01test", "task01test\task01test.csproj", "{C4A28AEF-660E-4AEC-87D2-8FEC1A01D43A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "task01", "task01\task01.csproj", "{EF800EAF-5970-43EF-9F8F-A714F9158B76}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "task02", "task02\task02.csproj", "{56B27877-134D-4DE8-B911-AEA929D5BD15}"
 EndProject
+=======
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "task02", "task02\task02.csproj", "{56B27877-134D-4DE8-B911-AEA929D5BD15}"
+EndProject
+>>>>>>> Stashed changes
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "task02test", "task02test\task02test.csproj", "{4894643D-07C0-4861-91F1-E2C6A3141374}"
 EndProject
 Global
