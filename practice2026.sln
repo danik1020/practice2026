@@ -3,14 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "task01test", "task01test\task01test.csproj", "{C4A28AEF-660E-4AEC-87D2-8FEC1A01D43A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "task01", "task01\task01.csproj", "{EF800EAF-5970-43EF-9F8F-A714F9158B76}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "task02", "task02\task02.csproj", "{56B27877-134D-4DE8-B911-AEA929D5BD15}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "task02test", "task02test\task02test.csproj", "{4894643D-07C0-4861-91F1-E2C6A3141374}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "task03", "task03\task03.csproj", "{03C31961-751B-49A5-8468-090315D0B601}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "task03test", "task03test\task03test.csproj", "{5AA5CA84-80DC-441B-8A18-4F93A5B1A13E}"
