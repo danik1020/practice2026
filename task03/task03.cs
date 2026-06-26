@@ -29,12 +29,8 @@ namespace task03
         }
 
 
-    public IEnumerable<T> FilterAndSort(Func<T, bool> predicate, Func<T, IComparable> keySelector)
-        {
-            var result = _items.Where(predicate).OrderBy(keySelector);
-            return result;
-        }
+    public IEnumerable<T> FilterAndSort(Func<T, bool> predicate, Func<T, IComparable> keySelector)=>_items.Where(predicate).OrderBy(keySelector);
+        
+}
 }
 
-
-}
