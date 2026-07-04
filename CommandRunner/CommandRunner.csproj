@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CommandLib\CommandLib.csproj" />
+    <ProjectReference Include="..\task07\task07.csproj" />
+  </ItemGroup>
+
+  <Target Name="CopyCommands" AfterTargets="Build">
+    <Copy SourceFiles="..\FileSystemCommands\bin\$(Configuration)\net8.0\FileSystemCommands.dll"
+          DestinationFolder="$(OutputPath)"
+          Condition="Exists('..\FileSystemCommands\bin\$(Configuration)\net8.0\FileSystemCommands.dll')" />
+  </Target>
+
+</Project>
