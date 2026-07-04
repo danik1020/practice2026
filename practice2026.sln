@@ -8,8 +8,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "task07test", "task07test\ta
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandLib", "CommandLib\CommandLib.csproj", "{190A87E9-5439-4814-B168-B3BEFD1FFCA7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandRunner", "CommandRunner\CommandRunner.csproj", "{22CE71D3-08E3-4753-AD1C-E7895AA81589}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSystemCommands", "FileSystemCommands\FileSystemCommands.csproj", "{3C2124FF-CB72-46B4-9D95-CDC508F4EF6C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "task08tests", "task08tests\task08tests.csproj", "{3AFAE58C-D7D7-4593-B032-4090521254A7}"
