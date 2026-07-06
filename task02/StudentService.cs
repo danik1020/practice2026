@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-namespace task02{
+namespace Student_Service{
 
 public class StudentService
 {
