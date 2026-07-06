@@ -40,3 +40,4 @@ public class AttributeReflectionTests
         Assert.Equal(0, attribute.Minor);
     }
 }
+    
