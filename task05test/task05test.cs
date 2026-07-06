@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq; 
 using Xunit;
-using task05;
+using _ClassAnalyzer;
 
 public interface ISpaceship
 {

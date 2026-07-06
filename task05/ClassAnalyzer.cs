@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Linq; 
 
-namespace task05
+namespace _ClassAnalyzer
 {
 
 public class ClassAnalyzer
