@@ -15,8 +15,18 @@ namespace metainfo
             if (!File.Exists(dllPath)) return;
 
             Assembly assembly = Assembly.LoadFrom(dllPath);
-            
-            foreach (var type in assembly.GetTypes())
+
+            Type[] types;
+            try
+            {
+                types = assembly.GetTypes();
+            }
+            catch (ReflectionTypeLoadException ex)
+            {
+                types = ex.Types.Where(t => t != null).ToArray();
+            }
+
+            foreach (var type in types)
             {
                 if (type.IsInterface || type.IsAbstract) continue;
 
