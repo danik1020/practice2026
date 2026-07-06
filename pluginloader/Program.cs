@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using CommandLib;
 using task07;
@@ -40,13 +41,35 @@ namespace PluginLoader
 
         public static void Main(string[] args)
         {
+            if (args.Length == 0) return;
             string path = args[0];
+            if (!Directory.Exists(path)) return;
+
             var files = Directory.GetFiles(path, "*.dll");
 
             foreach (var file in files)
             {
-                var asm = Assembly.LoadFrom(file);
-                foreach (var type in asm.GetTypes())
+                Assembly asm;
+                try
+                {
+                    asm = Assembly.LoadFrom(file);
+                }
+                catch
+                {
+                    continue;
+                }
+
+                Type[] types;
+                try
+                {
+                    types = asm.GetTypes();
+                }
+                catch (ReflectionTypeLoadException ex)
+                {
+                    types = ex.Types.Where(t => t != null).ToArray();
+                }
+
+                foreach (var type in types)
                 {
                     if (type.IsClass && !type.IsAbstract)
                     {
@@ -68,8 +91,15 @@ namespace PluginLoader
 
             foreach (var plugin in executionOrder)
             {
-                var cmd = (ICommand)Activator.CreateInstance(plugin);
-                cmd.Execute();
+                try
+                {
+                    var cmd = (ICommand)Activator.CreateInstance(plugin);
+                    cmd.Execute();
+                }
+                catch
+                {
+                    continue;
+                }
             }
         }
     }
