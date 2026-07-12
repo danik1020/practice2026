@@ -5,14 +5,12 @@ namespace task14
 {
     public class DefiniteIntegral
     {
-        private static readonly object _lock = new object();
 
         public static double Solve(double a, double b, Func<double, double> function, double step, int threadsNumber)
         {
             if (threadsNumber <= 0)
                 throw new ArgumentException("Количество потоков > 0");
             
-
             if (a == b) return 0.0;
             double sign = 1.0;
 
@@ -21,7 +19,8 @@ namespace task14
                 double c = a;
                 a = b;
                 b = c;
-                sign = -1.0;}
+                sign = -1.0;
+            }
             
             double totalResult = 0.0;
             double segmentLength = (b - a) / threadsNumber;
@@ -38,11 +37,16 @@ namespace task14
                 threads[i] = new Thread(() =>
                 {
                     double localResult = CalculateIntegral(segmentStart, segmentEnd, function, step); 
-                    
-                    lock (_lock)
+                    double current;
+                    double newValue;
+
+                    do
                     {
-                        totalResult += localResult;
+                        current = totalResult;
+                        newValue = current + localResult;
                     }
+                    while (Interlocked.CompareExchange(ref totalResult, newValue, current) != current);
+                    
                     
                     barrier.SignalAndWait();
                 });
@@ -62,9 +66,15 @@ namespace task14
             for (double x = a; x < b; x += step)
             {
                 double nextx = Math.Min(x + step, b);
-                result += (function(x) + function(nextx)) / 2.0 * (nextx - x);}
+                result += (function(x) + function(nextx)) / 2.0 * (nextx - x);
+            }
             
             return result;
+        }
+
+        public static double SingleThreadSolve(double a, double b, Func<double, double> function, double step)
+        {
+            return CalculateIntegral(a, b, function, step);
         }
     }
 }
