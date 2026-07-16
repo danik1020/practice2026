@@ -11,60 +11,58 @@ namespace task17
 
     public class ServerThread
     {
-        BlockingCollection<ICommand> _queue = new();
-        Thread _thread;
-        Action _strategy;
-        volatile bool _isRunning = true;
+        private readonly BlockingCollection<ICommand> _queue = new();
+        private readonly IScheduler _scheduler;
+        private Thread _thread;
+        private Action _strategy;
+        private volatile bool _isRunning = true;
 
         public Thread UnderlyingThread => _thread;
+        public IScheduler Scheduler => _scheduler;
 
-        public ServerThread()
+        public ServerThread() : this(new RoundRobinScheduler()) { }
+
+        public ServerThread(IScheduler scheduler)
         {
+            _scheduler = scheduler ?? throw new ArgumentNullException(nameof(scheduler));
             _thread = new Thread(Run) { IsBackground = true };
             _strategy = DefaultStrategy;
         }
 
-        public void Start()
-        {
-            _thread.Start();
-        }
+        public void Start() => _thread.Start();
 
         public void Enqueue(ICommand command)
         {
             if (!_queue.IsAddingCompleted)
-            {
                 _queue.Add(command);
-            }
         }
 
-        void Run()
+        private void Run()
         {
             while (_isRunning)
             {
-                try
-                {
-                    _strategy();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Ошибка в потоке: {ex.Message}");
-                }
+                try { _strategy(); }
+                catch (Exception ex) { Console.WriteLine($"Ошибка: {ex.Message}"); }
             }
         }
 
-        void DefaultStrategy()
+        private void DefaultStrategy()
         {
+            if (_queue.TryTake(out ICommand? cmd) && cmd != null)
+            {
+                ExecuteCommand(cmd);
+                return;
+            }
+
+            if (_scheduler.HasCommand())
+            {
+                ExecuteCommand(_scheduler.Select());
+                return;
+            }
+
             try
             {
-                ICommand command = _queue.Take();
-                try
-                {
-                    command.Execute();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Ошибка в команде {command.GetType().Name}: {ex.Message}");
-                }
+                ExecuteCommand(_queue.Take());
             }
             catch (InvalidOperationException)
             {
@@ -72,23 +70,29 @@ namespace task17
             }
         }
 
-        void SoftStopStrategy()
+        private void SoftStopStrategy()
         {
-            if (_queue.TryTake(out ICommand? command) && command != null)
+            while (true)
             {
-                try
+                if (_queue.TryTake(out ICommand? cmd) && cmd != null)
                 {
-                    command.Execute();
+                    ExecuteCommand(cmd);
+                    continue;
                 }
-                catch (Exception ex)
+                if (_scheduler.HasCommand())
                 {
-                    Console.WriteLine($"Ошибка в команде {command.GetType().Name}: {ex.Message}");
+                    ExecuteCommand(_scheduler.Select());
+                    continue;
                 }
+                break;
             }
-            else
-            {
-                _isRunning = false;
-            }
+            _isRunning = false;
+        }
+
+        private void ExecuteCommand(ICommand command)
+        {
+            try { command.Execute(); }
+            catch (Exception ex) { Console.WriteLine($"Ошибка в {command.GetType().Name}: {ex.Message}"); }
         }
 
         public void HardStop()
@@ -103,42 +107,24 @@ namespace task17
             _strategy = SoftStopStrategy;
         }
 
-        void VerifyCurrentThread()
+        private void VerifyCurrentThread()
         {
             if (Thread.CurrentThread != _thread)
-            {
                 throw new InvalidOperationException("Команда должна выполняться только внутри ServerThread");
-            }
         }
     }
 
     public class HardStopCommand : ICommand
     {
-        ServerThread _serverThread;
-
-        public HardStopCommand(ServerThread serverThread)
-        {
-            _serverThread = serverThread;
-        }
-
-        public void Execute()
-        {
-            _serverThread.HardStop();
-        }
+        private readonly ServerThread _serverThread;
+        public HardStopCommand(ServerThread serverThread) => _serverThread = serverThread;
+        public void Execute() => _serverThread.HardStop();
     }
 
     public class SoftStopCommand : ICommand
     {
-        ServerThread _serverThread;
-
-        public SoftStopCommand(ServerThread serverThread)
-        {
-            _serverThread = serverThread;
-        }
-
-        public void Execute()
-        {
-            _serverThread.SoftStop();
-        }
+        private readonly ServerThread _serverThread;
+        public SoftStopCommand(ServerThread serverThread) => _serverThread = serverThread;
+        public void Execute() => _serverThread.SoftStop();
     }
 }

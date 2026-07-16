@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using Xunit;
 using task17;
@@ -23,6 +24,30 @@ using task17;
             WasExecuted = true;
         }
     }
+
+    public class LongRunningSpyCommand : ICommand
+    {
+        private readonly IScheduler _scheduler;
+        private int _stepsLeft;
+        public int StepsExecuted { get; private set; }
+        public Action? OnExecute { get; set; }
+
+        public LongRunningSpyCommand(IScheduler scheduler, int totalSteps)
+        {
+            _scheduler = scheduler;
+            _stepsLeft = totalSteps;
+        }
+
+        public void Execute()
+        {
+            StepsExecuted++;
+            _stepsLeft--;
+            OnExecute?.Invoke();
+            if (_stepsLeft > 0)
+                _scheduler.Add(this);
+        }
+    }
+
     public class ServerThreadTests
     {
         [Fact]
@@ -70,5 +95,75 @@ using task17;
             Assert.Throws<InvalidOperationException>(() => softStop.Execute());
             server.Enqueue(new HardStopCommand(server));
             server.UnderlyingThread.Join(500);
+        }
+
+        [Fact]
+        public void LongRunningCommand_ShouldExecuteAllSteps()
+        {
+            var server = new ServerThread();
+            var cmd = new LongRunningSpyCommand(server.Scheduler, 5);
+            server.Enqueue(cmd);
+            server.Start();
+            WaitFor(() => cmd.StepsExecuted == 5);
+            server.Enqueue(new HardStopCommand(server));
+            server.UnderlyingThread.Join(1000);
+            Assert.Equal(5, cmd.StepsExecuted);
+        }
+
+        [Fact]
+        public void Scheduler_ShouldUseRoundRobin()
+        {
+            var server = new ServerThread();
+            var log = new List<string>();
+            var cmd1 = new LongRunningSpyCommand(server.Scheduler, 3) { OnExecute = () => log.Add("A") };
+            var cmd2 = new LongRunningSpyCommand(server.Scheduler, 3) { OnExecute = () => log.Add("B") };
+            server.Enqueue(cmd1);
+            server.Enqueue(cmd2);
+            server.Start();
+            WaitFor(() => log.Count == 6);
+            server.Enqueue(new HardStopCommand(server));
+            server.UnderlyingThread.Join(1000);
+            Assert.Equal("ABABAB", string.Join("", log));
+        }
+
+        [Fact]
+        public void NewCommands_ShouldNotStarve()
+        {
+            var server = new ServerThread();
+            var longCmd = new LongRunningSpyCommand(server.Scheduler, 100);
+            var shortCmd = new SpyCommand();
+            server.Enqueue(longCmd);
+            server.Start();
+            Thread.Sleep(50);
+            server.Enqueue(shortCmd);
+            WaitFor(() => shortCmd.WasExecuted);
+            Assert.True(shortCmd.WasExecuted);
+            server.Enqueue(new HardStopCommand(server));
+            server.UnderlyingThread.Join(1000);
+        }
+
+        [Fact]
+        public void SoftStop_ShouldDrainScheduler()
+        {
+            var server = new ServerThread();
+            var cmd = new LongRunningSpyCommand(server.Scheduler, 5);
+            server.Enqueue(cmd);
+            server.Start();
+            WaitFor(() => cmd.StepsExecuted >= 2);
+            server.Enqueue(new SoftStopCommand(server));
+            server.UnderlyingThread.Join(1000);
+            Assert.Equal(5, cmd.StepsExecuted);
+            Assert.False(server.UnderlyingThread.IsAlive);
+        }
+
+        private void WaitFor(Func<bool> condition, int timeoutMs = 3000)
+        {
+            var start = DateTime.Now;
+            while (!condition())
+            {
+                if ((DateTime.Now - start).TotalMilliseconds > timeoutMs)
+                    throw new TimeoutException();
+                Thread.Sleep(10);
+            }
         }
     }
